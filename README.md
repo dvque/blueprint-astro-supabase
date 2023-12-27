@@ -84,7 +84,7 @@ Based on the [Astro Supabase Starter](https://supabase.com/docs/guides/auth/serv
 Note: The `createServerClient` function takes a third argument, which is an object with a `cookies` property. This is a custom implementation of the `Cookies` interface from the [Cookies API](https://developer.mozilla.org/en-US/docs/Web/API/Cookies_API). This is required because Astro does not have a built-in way to access cookies on the server. The `createServerClient` function will use this to set and get cookies on the server. 
 
 
-6. If the array of responses is empty, you can try adding new policy:
+6. Check the database policies. Go to your Supabase project dashboard.
 
 ![Database policies](screenshot.png)
 ![Policy](screenshot-1.png)
