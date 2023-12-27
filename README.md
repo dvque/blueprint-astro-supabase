@@ -23,6 +23,8 @@ This is a blueprint for a hybrid site using Astro and Supabase.
 
 Based on the [Astro Supabase Starter](https://supabase.com/docs/guides/auth/server-side/creating-a-client?framework=astro&environment=astro-server) guide.
 
+You can visit [Supabase & Astro](https://docs.astro.build/es/guides/backend/supabase/)
+
 1. Create Astro project and follow the prompts
 
     ```bash
