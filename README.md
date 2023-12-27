@@ -1,54 +1,119 @@
-# Astro Starter Kit: Basics
+# Blueprint Astro Supabase
 
-```sh
-npm create astro@latest -- --template basics
-```
+This is a blueprint for a hybrid site using Astro and Supabase.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+## Table of Contents
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+- [Installation](#installation)
+- [Guide](#guide)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
 
-![just-the-basics](https://github.com/withastro/astro/assets/2244813/a0a5533c-a856-4198-8470-2d67b1d7c554)
+## Installation
 
-## 🚀 Project Structure
+1. Clone the repository.
+2. Install the dependencies by running the following command:
 
-Inside of your Astro project, you'll see the following folders and files:
+    ```bash
+    npm install
+    ```
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── components/
-│   │   └── Card.astro
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+## Guide
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Based on the [Astro Supabase Starter](https://supabase.com/docs/guides/auth/server-side/creating-a-client?framework=astro&environment=astro-server) guide.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+1. Create Astro project and follow the prompts
 
-Any static assets, like images, can be placed in the `public/` directory.
+    ```bash
+        npm create astro@latest
+    ```
 
-## 🧞 Commands
 
-All commands are run from the root of the project, from a terminal:
+2. Install Supabase packages
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+    ```bash
+        npm install @supabase/ssr @supabase/supabase-js
+    ```
 
-## 👀 Want to learn more?
+3. Set environment variables: Create a .env file in your project root directory. You can get your SUPABASE_URL and SUPABASE_ANON_KEY from inside your [Supabase project's dashboard](https://supabase.com/dashboard/project/_/settings/api).
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+    ```html
+        SUPABASE_URL="https://<your-project-id>.supabase.co"
+        SUPABASE_ANON_KEY="<your-public-api-key>"
+    ```
+4. By default, Astro apps are static. This means the requests for data happen at build time, rather than when the user requests a page. At build time, there is no user, session or cookies. Therefore, we need to configure Astro for Server-side Rendering (SSR) if you want data to be fetched dynamically per request. Add this to your `astro.config.mjs` file:
+
+    ```javascript
+        import { defineConfig } from 'astro/config'
+        export default defineConfig({
+        output: 'server',
+        })
+    ```
+
+5. Add the following code snippet to the top of your `index.astro` file:
+
+    ```astro
+    ---
+    import { createServerClient, type CookieOptions } from "@supabase/ssr";
+
+    const supabase = createServerClient(
+        import.meta.env.PUBLIC_SUPABASE_URL,
+        import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+        {
+            cookies: {
+                get(key: string) {
+                    return Astro.cookies.get(key)?.value;
+                },
+                set(key: string, value: string, options: CookieOptions) {
+                    Astro.cookies.set(key, value, options);
+                },
+                remove(key: string, options) {
+                    Astro.cookies.delete(key, options);
+                },
+            },
+        },
+    );
+
+    const { data, error } = await supabase.from("posts").select("*");
+
+    console.log(data, error);
+    ---
+    ```
+
+Note: The `createServerClient` function takes a third argument, which is an object with a `cookies` property. This is a custom implementation of the `Cookies` interface from the [Cookies API](https://developer.mozilla.org/en-US/docs/Web/API/Cookies_API). This is required because Astro does not have a built-in way to access cookies on the server. The `createServerClient` function will use this to set and get cookies on the server. 
+
+
+6. If the array of responses is empty, you can try adding new policy:
+
+![Database policies](screenshot.png)
+![Policy](screenshot-1.png)
+
+7. Run the following command to start the server:
+
+    ```bash
+        npm run dev
+    ```
+
+
+## Documentation
+
+[https://astro.build/](https://astro.build/) - Astro is a modern static site builder for the Jamstack. It allows you to build faster websites with less JavaScript by compiling your components to static HTML at build time.
+
+
+[Link to Supabase Documentation](https://supabase.com/docs) - Supabase is an open source Firebase alternative. It is a hosted platform to build a backend for your web or mobile app with PostgreSQL. It has a set of open source tools for building software with composable services. It is the easiest way to get a production-ready database up and running in less than 2 minutes.
+
+## Contributing
+
+Contributions are welcome! Please follow these steps to contribute:
+
+1. Fork the repository.
+2. Create a new branch.
+3. Make your changes.
+4. Submit a pull request.
+
+
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
